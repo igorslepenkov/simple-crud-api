@@ -35,26 +35,18 @@ class Controller {
     username: string;
     age: number;
     hobbies: string[];
-  }): Promise<User> {
-    try {
-      const usersArray = await this.getAllUsers();
-      if (!usersArray.find((user) => user.username === username)) {
-        const newUser = new User(username, age, hobbies);
-        usersArray.push(newUser);
+  }): Promise<User | void> {
+    const usersArray = await this.getAllUsers();
+    console.log(!usersArray.find((user) => user.username === username));
+    const newUser = new User(username, age, hobbies);
+    usersArray.push(newUser);
 
-        await fs.writeFile(
-          path.join(__dirname, "./database.json"),
-          JSON.stringify(usersArray)
-        );
+    await fs.writeFile(
+      path.join(__dirname, "./database.json"),
+      JSON.stringify(usersArray)
+    );
 
-        return newUser;
-      } else {
-        throw new Error("User with the same username is allready exists");
-      }
-    } catch (err) {
-      console.log(err);
-      throw new Error("400");
-    }
+    return newUser;
   }
 
   async putUser(id: string, user: User): Promise<void> {
