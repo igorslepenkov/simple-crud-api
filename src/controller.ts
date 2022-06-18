@@ -1,5 +1,4 @@
 import { User } from "./data";
-import { v4 as uuidv4 } from "uuid";
 import { validate as uuidValidate } from "uuid";
 import fs from "fs/promises";
 import path from "path";
@@ -37,7 +36,6 @@ class Controller {
     hobbies: string[];
   }): Promise<User | void> {
     const usersArray = await this.getAllUsers();
-    console.log(!usersArray.find((user) => user.username === username));
     const newUser = new User(username, age, hobbies);
     usersArray.push(newUser);
 
@@ -49,7 +47,14 @@ class Controller {
     return newUser;
   }
 
-  async putUser(id: string, user: User): Promise<void> {
+  async putUser(
+    id: string,
+    user: { id: string; username: string; age: number; hobbies: string[] }
+  ): Promise<User | void> {
+    if (!uuidValidate(id)) {
+      throw new Error("400");
+    }
+
     const usersArray = await this.getAllUsers();
 
     const currentUser = usersArray.find((user) => user.id === id);
@@ -62,7 +67,10 @@ class Controller {
         path.join(__dirname, "./database.json"),
         JSON.stringify(usersArray)
       );
-      return;
+
+      return currentUser;
+    } else {
+      throw new Error("404");
     }
   }
 
