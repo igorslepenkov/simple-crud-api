@@ -32,7 +32,6 @@ const server = createServer(
               response.end();
             }
           } catch (err) {
-            console.log(err);
             if (err instanceof Error && err.message === "400") {
               response.writeHead(400, "Invalid id endpoint", {
                 "Content-Type": "text/html",
@@ -108,10 +107,42 @@ const server = createServer(
               }
             }
           }
+        } else if (
+          getEndpoint(request.url, API_URL) &&
+          request.method === "DELETE"
+        ) {
+          try {
+            const endpoint = getEndpoint(request.url, API_URL);
+            if (endpoint) {
+              await controller.deleteUser(endpoint);
+              response.writeHead(204, "User has been deleted successfully", {
+                "Content-Type": "text/html",
+              });
+              response.end();
+            }
+          } catch (err) {
+            if (err instanceof Error) {
+              if (err.message === "400") {
+                response.writeHead(400, "Invalid id", {
+                  "Content-Type": "text/html",
+                });
+                response.write("Invalid id");
+                response.end();
+              } else if (err.message === "404") {
+                response.writeHead(404, "User not found", {
+                  "Content-Type": "text/html",
+                });
+                response.write("User not found");
+                response.end();
+              }
+            }
+          }
         }
       } else {
-        response.writeHead(404, { "Content-Type": "application/json" });
-        response.write("Not found");
+        response.writeHead(404, "Requested resource not found", {
+          "Content-Type": "application/json",
+        });
+        response.write("Requested resource not found");
         response.end();
       }
     } catch (err) {
