@@ -63,7 +63,7 @@ class Controller {
       currentUser.age = user.age;
       currentUser.hobbies = user.hobbies;
 
-      fs.writeFile(
+      await fs.writeFile(
         path.join(__dirname, "./database.json"),
         JSON.stringify(usersArray)
       );
@@ -75,6 +75,9 @@ class Controller {
   }
 
   async deleteUser(id: string): Promise<void> {
+    if (!uuidValidate(id)) {
+      throw new Error("400");
+    }
     const usersArray = await this.getAllUsers();
 
     const user = usersArray.find((user) => user.id === id);
@@ -82,11 +85,13 @@ class Controller {
       const idx = usersArray.indexOf(user);
       usersArray.splice(idx, 1);
 
-      fs.writeFile(
+      await fs.writeFile(
         path.join(__dirname, "./database.json"),
         JSON.stringify(usersArray)
       );
       return;
+    } else {
+      throw new Error("404");
     }
   }
 }
