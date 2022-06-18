@@ -3,6 +3,7 @@ import { User } from "./data";
 import { Controller } from "./controller";
 import { getEndpoint } from "./utils/getEndpoint";
 import { getPostData } from "./utils/getPostData";
+import { getPutData } from "./utils/getPutData";
 
 const PORT = 5000;
 
@@ -19,7 +20,6 @@ const server = createServer(
           response.write(JSON.stringify(await controller.getAllUsers()));
           response.end();
         } else if (
-          request.url.includes(API_URL) &&
           getEndpoint(request.url, API_URL) &&
           request.method === "GET"
         ) {
@@ -74,6 +74,38 @@ const server = createServer(
                 ? response.write("User allready exists")
                 : response.write("Bad request body");
               response.end();
+            }
+          }
+        } else if (
+          getEndpoint(request.url, API_URL) &&
+          request.method === "PUT"
+        ) {
+          try {
+            const endpoint = getEndpoint(request.url, API_URL);
+            const data = await getPutData(request);
+            if (endpoint && data) {
+              const updatedUser = await controller.putUser(endpoint, data);
+              if (updatedUser) {
+                response.writeHead(200, { "Content-Type": "application/json" });
+                response.write(JSON.stringify(updatedUser));
+                response.end();
+              }
+            }
+          } catch (err) {
+            if (err instanceof Error) {
+              if (err.message === "400") {
+                response.writeHead(400, "Bad request body or invalid id", {
+                  "Content-Type": "text/html",
+                });
+                response.write("Bad request body or invalid id");
+                response.end();
+              } else if (err.message === "404") {
+                response.writeHead(404, "User not found", {
+                  "Content-Type": "text/html",
+                });
+                response.write("User not found");
+                response.end();
+              }
             }
           }
         }

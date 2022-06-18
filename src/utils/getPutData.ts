@@ -1,10 +1,16 @@
 import { IncomingMessage } from "http";
 
-function getPostData(
+function getPutData(
   request: IncomingMessage
-): Promise<{ username: string; age: number; hobbies: string[] }> {
+): Promise<{
+  id: string;
+  username: string;
+  age: number;
+  hobbies: string[];
+}> | void {
   return new Promise((resolve, reject) => {
     let data: {
+      id: string;
       username: string;
       age: number;
       hobbies: string[];
@@ -15,7 +21,7 @@ function getPostData(
     });
 
     request.on("end", () => {
-      if (data.username && data.age && data.hobbies) {
+      if (data.id && data.username && data.age && data.hobbies) {
         resolve(data);
       } else {
         throw new Error("400");
@@ -24,4 +30,4 @@ function getPostData(
   });
 }
 
-export { getPostData };
+export { getPutData };
