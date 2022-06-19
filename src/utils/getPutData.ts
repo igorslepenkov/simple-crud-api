@@ -1,8 +1,6 @@
 import { IncomingMessage } from "http";
 
-function getPutData(
-  request: IncomingMessage
-): Promise<{
+function getPutData(request: IncomingMessage): Promise<{
   id: string;
   username: string;
   age: number;
@@ -21,11 +19,7 @@ function getPutData(
     });
 
     request.on("end", () => {
-      if (data.id && data.username && data.age && data.hobbies) {
-        resolve(data);
-      } else {
-        throw new Error("400");
-      }
+      resolve(data);
     });
   });
 }

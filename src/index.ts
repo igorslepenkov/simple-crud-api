@@ -57,11 +57,17 @@ if (PORT && API_URL) {
               const usersArray = await controller.getAllUsers();
 
               if (!usersArray.find((user) => user.username === username)) {
-                const newUser = new User(username, age, hobbies);
-                controller.postUser(newUser);
-                response.writeHead(200, { "Content-Type": "application/json" });
-                response.write(JSON.stringify(newUser));
-                response.end();
+                try {
+                  const newUser = new User(username, age, hobbies);
+                  await controller.postUser(newUser);
+                  response.writeHead(200, {
+                    "Content-Type": "application/json",
+                  });
+                  response.write(JSON.stringify(newUser));
+                  response.end();
+                } catch (err) {
+                  throw new Error(err.message);
+                }
               } else {
                 throw new Error("User exists");
               }

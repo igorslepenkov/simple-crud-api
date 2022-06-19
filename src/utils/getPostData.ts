@@ -15,11 +15,7 @@ function getPostData(
     });
 
     request.on("end", () => {
-      if (data.username && data.age && data.hobbies) {
-        resolve(data);
-      } else {
-        throw new Error("400");
-      }
+      resolve(data);
     });
   });
 }

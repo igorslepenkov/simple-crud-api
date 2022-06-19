@@ -33,44 +33,60 @@ class Controller {
   }: {
     username: string;
     age: number;
-    hobbies: string[];
-  }): Promise<User | void> {
-    const usersArray = await this.getAllUsers();
-    const newUser = new User(username, age, hobbies);
-    usersArray.push(newUser);
+    hobbies: string[] | [];
+  }): Promise<User> {
+    try {
+      if (username && age && (hobbies || hobbies === [])) {
+        const usersArray = await this.getAllUsers();
+        const newUser = new User(username, age, hobbies);
+        usersArray.push(newUser);
 
-    await fs.writeFile(
-      path.join(__dirname, "./database.json"),
-      JSON.stringify(usersArray)
-    );
+        await fs.writeFile(
+          path.join(__dirname, "./database.json"),
+          JSON.stringify(usersArray)
+        );
 
-    return newUser;
+        return newUser;
+      } else {
+        throw new Error("400");
+      }
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 
   async putUser(
     id: string,
-    user: { id: string; username: string; age: number; hobbies: string[] }
-  ): Promise<User | void> {
-    if (!uuidValidate(id)) {
-      throw new Error("400");
-    }
+    user: { id: string; username: string; age: number; hobbies: string[] | [] }
+  ): Promise<User> {
+    try {
+      if (!uuidValidate(id) || !id) {
+        throw new Error("400");
+      }
 
-    const usersArray = await this.getAllUsers();
+      if (user.id && user.username && user.age && user.hobbies) {
+        const usersArray = await this.getAllUsers();
 
-    const currentUser = usersArray.find((user) => user.id === id);
-    if (currentUser) {
-      currentUser.username = user.username;
-      currentUser.age = user.age;
-      currentUser.hobbies = user.hobbies;
+        const currentUser = usersArray.find((user) => user.id === id);
+        if (currentUser) {
+          currentUser.username = user.username;
+          currentUser.age = user.age;
+          currentUser.hobbies = user.hobbies;
 
-      await fs.writeFile(
-        path.join(__dirname, "./database.json"),
-        JSON.stringify(usersArray)
-      );
+          await fs.writeFile(
+            path.join(__dirname, "./database.json"),
+            JSON.stringify(usersArray)
+          );
 
-      return currentUser;
-    } else {
-      throw new Error("404");
+          return currentUser;
+        } else {
+          throw new Error("404");
+        }
+      } else {
+        throw new Error("400");
+      }
+    } catch (err) {
+      throw new Error(err.message);
     }
   }
 
